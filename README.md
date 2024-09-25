@@ -36,6 +36,6 @@ meson compile
 - [imgui](https://github.com/ocornut/imgui): MIT License
 - [VulkanMemoryAllocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator): MIT License
 - [PerlinNoise](https://github.com/Reputeless/PerlinNoise): MIT License
-- [SDL](https://github.com/libsdl-org/SDL) (system): Zlib License
-- [Vulkan-Headers](https://github.com/KhronosGroup/Vulkan-Headers) (system): Apache-2.0 / MIT License
+- [SDL](https://github.com/libsdl-org/SDL) (system/wrapdb): Zlib License
+- [Vulkan-Headers](https://github.com/KhronosGroup/Vulkan-Headers) (system/wrapdb): Apache-2.0 / MIT License
 
