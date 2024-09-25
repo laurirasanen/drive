@@ -80,7 +80,10 @@ constexpr static VkAccessFlags GetAccessFlags(const VkImageLayout imageLayout)
     }
 }
 
-constexpr static void TransitionImageLayout(
+#if __GNUC__
+constexpr
+#endif
+static void TransitionImageLayout(
     VkCommandBuffer                commandBuffer,
     VkImage                        image,
     VkImageLayout                  oldLayout,
@@ -116,7 +119,10 @@ constexpr static void TransitionImageLayout(
     );
 }
 
-constexpr static void TransitionImageLayout(
+#if __GNUC__
+constexpr
+#endif
+static void TransitionImageLayout(
     VkCommandBuffer                commandBuffer,
     VkImage                        image,
     VkImageLayout                  oldLayout,
@@ -141,7 +147,10 @@ constexpr static void TransitionImageLayout(
     );
 }
 
-constexpr static void TransitionImageLayout(
+#if __GNUC__
+constexpr
+#endif
+static void TransitionImageLayout(
     VkCommandBuffer commandBuffer,
     VkImage         image,
     VkImageLayout   oldLayout,

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/ext/quaternion_transform.hpp>

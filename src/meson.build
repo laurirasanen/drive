@@ -1,5 +1,5 @@
 sdl_dep = dependency('sdl2', include_type: 'system')
-vk_dep = dependency('vulkan', include_type: 'system')
+vk_dep = dependency('vulkanheaders', include_type: 'system')
 
 shadercompiler_src = files([
   'ShaderCompiler.cpp',

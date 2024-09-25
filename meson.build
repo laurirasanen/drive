@@ -16,11 +16,8 @@ buildtype = get_option('buildtype')
 source_dir = meson.current_source_dir()
 
 # Sanity checks
-if compiler != 'gcc' 
-  error('Unsupported compiler "@0@"', compiler)
-endif
-if host_system != 'linux' and host_system != 'windows'
-  error('Unsupported host system system "@0@"', host_system)
+if compiler not in ['gcc', 'msvc']
+  error('Unsupported compiler ', compiler)
 endif
 
 compiler_args = [

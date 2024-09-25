@@ -87,12 +87,12 @@ class Log
 };
 
 #define _LOG(L, F, ...) \
-    drive::Log::Print(__FILE__, __LINE__, __FUNCTION__, L, F __VA_OPT__(, ) __VA_ARGS__)
+    drive::Log::Print(__FILE__, __LINE__, __func__, L, F, ##__VA_ARGS__)
 
-#define LOG_DEBUG(F, ...)     _LOG(drive::LogLevel::Debug, F, __VA_ARGS__)
-#define LOG_INFO(F, ...)      _LOG(drive::LogLevel::Info, F, __VA_ARGS__)
-#define LOG_WARNING(F, ...)   _LOG(drive::LogLevel::Warning, F, __VA_ARGS__)
-#define LOG_ERROR(F, ...)     _LOG(drive::LogLevel::Error, F, __VA_ARGS__)
-#define LOG_EXCEPTION(F, ...) _LOG(drive::LogLevel::Exception, F, __VA_ARGS__)
+#define LOG_DEBUG(F, ...)     _LOG(drive::LogLevel::Debug, F, ##__VA_ARGS__)
+#define LOG_INFO(F, ...)      _LOG(drive::LogLevel::Info, F, ##__VA_ARGS__)
+#define LOG_WARNING(F, ...)   _LOG(drive::LogLevel::Warning, F, ##__VA_ARGS__)
+#define LOG_ERROR(F, ...)     _LOG(drive::LogLevel::Error, F, ##__VA_ARGS__)
+#define LOG_EXCEPTION(F, ...) _LOG(drive::LogLevel::Exception, F, ##__VA_ARGS__)
 
 } // namespace drive

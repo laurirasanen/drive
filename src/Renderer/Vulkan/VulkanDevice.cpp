@@ -11,7 +11,10 @@
 
 namespace drive
 {
-static constexpr void _vkCmdBeginRenderingKHR(
+#if __GNUC__
+constexpr
+#endif
+static void _vkCmdBeginRenderingKHR(
     VkInstance             instance,
     VkCommandBuffer        commandBuffer,
     const VkRenderingInfo* renderingInfo
@@ -29,7 +32,10 @@ static constexpr void _vkCmdBeginRenderingKHR(
     }
 }
 
-static constexpr void _vkCmdEndRenderingKHR(VkInstance instance, VkCommandBuffer commandBuffer)
+#if __GNUC__
+constexpr
+#endif
+static void _vkCmdEndRenderingKHR(VkInstance instance, VkCommandBuffer commandBuffer)
 {
     auto func = (PFN_vkCmdEndRenderingKHR)vkGetInstanceProcAddr(instance, "vkCmdEndRenderingKHR");
     if (func != nullptr)

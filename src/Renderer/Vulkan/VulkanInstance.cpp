@@ -7,14 +7,17 @@
 
 namespace drive
 {
-static constexpr VKAPI_ATTR VkBool32 VKAPI_CALL _VkDebugMessengerCallback(
+#if __GNUC__
+constexpr
+#endif
+static VKAPI_ATTR VkBool32 VKAPI_CALL _VkDebugMessengerCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* /*pUserData*/
 )
 {
-    LogLevel level;
+    auto level = LogLevel::Debug;
     switch (messageSeverity)
     {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
@@ -37,7 +40,10 @@ static constexpr VKAPI_ATTR VkBool32 VKAPI_CALL _VkDebugMessengerCallback(
     return VK_FALSE;
 }
 
-static constexpr VkResult _CreateDebugUtilsMessengerEXT(
+#if __GNUC__
+constexpr
+#endif
+static VkResult _CreateDebugUtilsMessengerEXT(
     VkInstance                                instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks*              pAllocator,
@@ -56,7 +62,10 @@ static constexpr VkResult _CreateDebugUtilsMessengerEXT(
     }
 }
 
-static constexpr void _DestroyDebugUtilsMessengerEXT(
+#if __GNUC__
+constexpr
+#endif
+static void _DestroyDebugUtilsMessengerEXT(
     VkInstance                   instance,
     VkDebugUtilsMessengerEXT     debugMessenger,
     const VkAllocationCallbacks* pAllocator
