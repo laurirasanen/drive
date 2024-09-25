@@ -8,7 +8,7 @@ Procedural terrain experiment.
 
 ### Linux
 
-Dependencies: Meson, glslc, gcc, SDL2, Vulkan Headers
+Dependencies: Meson, gcc, glslc
 
 ```sh
 git clone https://github.com/laurirasanen/drive.git --recursive
@@ -19,7 +19,7 @@ cd drive
 
 ### Windows
 
-Dependencies: Meson, Visul Studio 2022
+Dependencies: Meson, Visul Studio 2022, Vulkan SDK
 
 ```sh
 git clone https://github.com/laurirasanen/drive.git --recursive
