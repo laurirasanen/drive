@@ -98,7 +98,7 @@ void UI::Render()
         {
             auto data           = ImGui::GetDrawData();
             auto vulkanRenderer = std::static_pointer_cast<VulkanRenderer>(m_renderer);
-            ImGui_ImplVulkan_RenderDrawData(data, vulkanRenderer->GetCommandBuffer());
+            ImGui_ImplVulkan_RenderDrawData(data, vulkanRenderer->GetVkCommandBuffer());
             break;
         }
 

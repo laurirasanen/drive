@@ -3,6 +3,7 @@
 #include <glm/geometric.hpp>
 
 #include "../Log.h"
+#include "../Renderer/Renderer.h"
 #include "../Renderer/Vulkan/VulkanRenderer.h"
 #include "Terrain.h"
 
@@ -50,30 +51,32 @@ void Terrain::Render()
 
             if (chunk != nullptr)
             {
-                auto vulkanRenderer = std::static_pointer_cast<VulkanRenderer>(m_renderer);
-
                 if (chunk->vertexBuffer == nullptr)
                 {
-                    vulkanRenderer->CreateBuffer(
+                    m_renderer->CreateBuffer(
                         chunk->vertexBuffer,
-                        chunk->vertices.begin(),
+                        VertexBuffer,
+                        chunk->vertices.data(),
+                        sizeof(TerrainVertex),
                         static_cast<uint32_t>(chunk->vertices.size())
                     );
-                    vulkanRenderer->CreateBuffer(
+                    m_renderer->CreateBuffer(
                         chunk->indexBuffer,
-                        chunk->indices.begin(),
+                        IndexBuffer,
+                        chunk->indices.data(),
+                        sizeof(Index),
                         static_cast<uint32_t>(chunk->indices.size())
                     );
                     chunk->vertices.clear();
                     chunk->indices.clear();
                 }
 
+                auto vulkanRenderer = static_pointer_cast<VulkanRenderer>(m_renderer);
                 vulkanRenderer->BindPipeline(RenderPipeline::TERRAIN);
-                // vulkanRenderer->DrawWithBuffers(
-                //     m_loadedChunks[x][y]->vertexBuffer,
-                //     m_loadedChunks[x][y]->indexBuffer
-                //);
-                vulkanRenderer->DrawChunk(chunk);
+                m_renderer->DrawWithBuffers(
+                    m_loadedChunks[x][y]->vertexBuffer,
+                    m_loadedChunks[x][y]->indexBuffer
+                );
             }
         }
     }

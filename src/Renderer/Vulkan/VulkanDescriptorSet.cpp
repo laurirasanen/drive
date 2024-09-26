@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <cstring>
 
 #include "../DataTypes.h"
@@ -6,8 +7,12 @@
 
 namespace drive
 {
-VulkanDescriptorSet::VulkanDescriptorSet(const VulkanDevice& device, uint32_t maxFrames) :
-    m_device(device)
+VulkanDescriptorSet::VulkanDescriptorSet(
+    const VulkanDevice&                        device,
+    std::vector<std::shared_ptr<VulkanBuffer>> uboBuffers
+) :
+    m_device(device),
+    m_uniformBuffers(uboBuffers)
 {
     VkDescriptorSetLayoutBinding uboBinding {};
     uboBinding.binding            = 0;
@@ -21,6 +26,7 @@ VulkanDescriptorSet::VulkanDescriptorSet(const VulkanDevice& device, uint32_t ma
     layoutInfo.bindingCount = 1;
     layoutInfo.pBindings    = &uboBinding;
 
+    const auto maxFrames = static_cast<uint32_t>(m_uniformBuffers.size());
     m_vkLayouts.resize(maxFrames);
 
     for (uint32_t i = 0; i < maxFrames; i++)
@@ -52,10 +58,8 @@ VulkanDescriptorSet::VulkanDescriptorSet(const VulkanDevice& device, uint32_t ma
     m_ubosMappedMemory.resize(maxFrames);
     for (uint32_t i = 0; i < maxFrames; i++)
     {
-        auto uniformBuffer =
-            std::make_shared<VulkanBuffer<UniformBufferObject, UniformBuffer>>(Host, 1);
+        auto uniformBuffer = uboBuffers[i];
         uniformBuffer->Map(&m_ubosMappedMemory[i]);
-        m_uniformBuffers.push_back(uniformBuffer);
 
         VkDescriptorBufferInfo bufferInfo {};
         bufferInfo.buffer = uniformBuffer->GetVkBuffer();

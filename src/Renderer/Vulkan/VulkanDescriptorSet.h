@@ -11,7 +11,10 @@ class VulkanDescriptorSet
 {
   public:
     VulkanDescriptorSet() = delete;
-    VulkanDescriptorSet(const VulkanDevice& device, uint32_t maxFrames);
+    VulkanDescriptorSet(
+        const VulkanDevice&                        device,
+        std::vector<std::shared_ptr<VulkanBuffer>> uboBuffers
+    );
     ~VulkanDescriptorSet();
 
     VulkanDescriptorSet(const VulkanDescriptorSet&)            = delete;
@@ -34,10 +37,10 @@ class VulkanDescriptorSet
     }
 
   private:
-    const VulkanDevice&                                                            m_device;
-    std::vector<VkDescriptorSetLayout>                                             m_vkLayouts;
-    std::vector<VkDescriptorSet>                                                   m_vkSets;
-    std::vector<std::shared_ptr<VulkanBuffer<UniformBufferObject, UniformBuffer>>> m_uniformBuffers;
-    std::vector<void*> m_ubosMappedMemory;
+    const VulkanDevice&                        m_device;
+    std::vector<VkDescriptorSetLayout>         m_vkLayouts;
+    std::vector<VkDescriptorSet>               m_vkSets;
+    std::vector<std::shared_ptr<VulkanBuffer>> m_uniformBuffers;
+    std::vector<void*>                         m_ubosMappedMemory;
 };
 } // namespace drive

@@ -17,7 +17,14 @@ VulkanRenderer::VulkanRenderer(std::shared_ptr<Window> window) :
 {
     LOG_INFO("Creating VulkanRenderer");
 
-    m_descriptorSet = std::make_shared<VulkanDescriptorSet>(m_device, MAX_FRAMES_IN_FLIGHT);
+    auto uboBuffers = std::vector<std::shared_ptr<VulkanBuffer>>();
+    for (unsigned int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        uboBuffers.push_back(
+            std::make_shared<VulkanBuffer>(UniformBuffer, Host, sizeof(UniformBufferObject), 1)
+        );
+    }
+    m_descriptorSet = std::make_shared<VulkanDescriptorSet>(m_device, uboBuffers);
 
     auto moduleSimpleFrag = CreateShaderModule(LOAD_VULKAN_SPV(Simple_frag));
     auto moduleSimpleVert = CreateShaderModule(LOAD_VULKAN_SPV(Simple_vert));
@@ -57,27 +64,35 @@ VulkanRenderer::VulkanRenderer(std::shared_ptr<Window> window) :
     );
 
     // test plane
-    const std::vector<SimpleVertex> vertices = {
+    std::vector<SimpleVertex> vertices = {
         {{-0.5, -0.5, 63.0}, {1.0f, 0.0f, -0.1f}},
         { {0.5, -0.5, 63.0}, {0.0f, 1.0f, -0.1f}},
         {  {0.5, 0.5, 63.0},  {0.0f, 0.0f, 0.9f}},
         { {-0.5, 0.5, 63.0},  {1.0f, 1.0f, 0.9f}},
     };
-    const std::vector<Index> indices = {{0}, {1}, {2}, {2}, {3}, {0}};
+    std::vector<Index> indices = {{0}, {1}, {2}, {2}, {3}, {0}};
 
     auto hostVertexBuffer =
-        std::make_shared<VulkanBuffer<SimpleVertex, VertexBuffer>>(Host, vertices.size());
+        std::make_shared<VulkanBuffer>(VertexBuffer, Host, sizeof(SimpleVertex), vertices.size());
     auto deviceVertexBuffer =
-        std::make_shared<VulkanBuffer<SimpleVertex, VertexBuffer>>(Device, vertices.size());
-    hostVertexBuffer->Write(vertices.begin(), static_cast<uint32_t>(vertices.size()));
-    hostVertexBuffer->CopyToDevice(m_device, deviceVertexBuffer);
+        std::make_shared<VulkanBuffer>(VertexBuffer, Device, sizeof(SimpleVertex), vertices.size());
+    hostVertexBuffer->Write(
+        vertices.data(),
+        sizeof(SimpleVertex) * static_cast<uint32_t>(vertices.size())
+    );
+    auto tempBuffer = GetTemporaryCommandBuffer();
+    hostVertexBuffer->CopyToDevice(tempBuffer, static_pointer_cast<Buffer>(deviceVertexBuffer));
+    SubmitTemporaryCommandBuffer(tempBuffer);
     m_deviceVertexBuffers.push_back(deviceVertexBuffer);
 
-    auto hostIndexBuffer = std::make_shared<VulkanBuffer<Index, IndexBuffer>>(Host, indices.size());
+    auto hostIndexBuffer =
+        std::make_shared<VulkanBuffer>(IndexBuffer, Host, sizeof(Index), indices.size());
     auto deviceIndexBuffer =
-        std::make_shared<VulkanBuffer<Index, IndexBuffer>>(Device, indices.size());
-    hostIndexBuffer->Write(indices.begin(), static_cast<uint32_t>(indices.size()));
-    hostIndexBuffer->CopyToDevice(m_device, deviceIndexBuffer);
+        std::make_shared<VulkanBuffer>(IndexBuffer, Device, sizeof(Index), indices.size());
+    hostIndexBuffer->Write(indices.data(), sizeof(Index) * static_cast<uint32_t>(indices.size()));
+    tempBuffer = GetTemporaryCommandBuffer();
+    hostIndexBuffer->CopyToDevice(tempBuffer, static_pointer_cast<Buffer>(deviceIndexBuffer));
+    SubmitTemporaryCommandBuffer(tempBuffer);
     m_deviceIndexBuffers.push_back(deviceIndexBuffer);
 }
 
@@ -102,7 +117,7 @@ VulkanRenderer::~VulkanRenderer()
     m_deviceIndexBuffers.clear();
     m_hostVertexBuffers.clear();
     m_hostIndexBuffers.clear();
-    m_frameChunks.clear();
+    m_frameBuffers.clear();
 }
 
 void VulkanRenderer::SetWindow(std::shared_ptr<Window> window)
@@ -141,7 +156,7 @@ void VulkanRenderer::Submit()
 
     // Not ideal but guarantees chunk buffers aren't freed too early.
     m_device.WaitForGraphicsIdle();
-    m_frameChunks.clear();
+    m_frameBuffers.clear();
 }
 
 void VulkanRenderer::Present()

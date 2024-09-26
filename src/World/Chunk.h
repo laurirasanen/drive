@@ -5,7 +5,8 @@
 
 #include <glm/vec2.hpp>
 
-#include "../Renderer/Vulkan/VulkanBuffer.h"
+#include "../Renderer/Buffer.h"
+#include "../Renderer/DataTypes.h"
 
 #define CHUNK_SIZE 64
 
@@ -20,8 +21,8 @@ struct Chunk
     std::vector<TerrainVertex> vertices;
     std::vector<Index>         indices;
 
-    std::shared_ptr<VulkanBuffer<TerrainVertex, VertexBuffer>> vertexBuffer;
-    std::shared_ptr<VulkanBuffer<Index, IndexBuffer>>          indexBuffer;
+    std::shared_ptr<Buffer> vertexBuffer;
+    std::shared_ptr<Buffer> indexBuffer;
 
     Chunk(glm::ivec2 pos)
     {

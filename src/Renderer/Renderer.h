@@ -8,6 +8,7 @@
 #include "../Components/Camera.h"
 #include "../Components/Rect.h"
 #include "../Window/Window.h"
+#include "Buffer.h"
 
 namespace drive
 {
@@ -40,5 +41,28 @@ class Renderer
     virtual void         DrawTest()                                           = 0;
     virtual RendererType Type() const                                         = 0;
     virtual void         WaitForIdle()                                        = 0;
+    virtual void*        GetCommandBuffer()                                   = 0;
+
+    virtual void CreateBuffer(
+        std::shared_ptr<Buffer>& buffer,
+        BufferType               bufferType,
+        void*                    data,
+        uint32_t                 elementSize,
+        uint32_t                 elementCount
+    ) = 0;
+
+    void DrawWithBuffers(std::shared_ptr<Buffer> vertexBuffer, std::shared_ptr<Buffer> indexBuffer)
+    {
+        auto commandBuffer = GetCommandBuffer();
+        vertexBuffer->Bind(commandBuffer);
+        indexBuffer->Bind(commandBuffer);
+        indexBuffer->Draw(commandBuffer);
+        m_frameBuffers.push_back(vertexBuffer);
+        m_frameBuffers.push_back(indexBuffer);
+    }
+
+    // Hold so we don't call Buffer destructor
+    // while still in use by command buffer.
+    std::vector<std::shared_ptr<Buffer>> m_frameBuffers;
 };
 } // namespace drive

@@ -56,6 +56,11 @@ class VulkanRenderer final : public Renderer
     void  DrawTest() override;
     void  WaitForIdle() override;
 
+    void* GetCommandBuffer() override
+    {
+        return GetVkCommandBuffer();
+    };
+
     RendererType Type() const override
     {
         return RendererType::VULKAN;
@@ -63,22 +68,41 @@ class VulkanRenderer final : public Renderer
 
     void GetImGuiInfo(VulkanImGuiCreationInfo& info);
 
-    VkCommandBuffer GetCommandBuffer() const
+    VkCommandBuffer GetVkCommandBuffer() const
     {
         return m_device.GetCommandBuffer();
     }
 
-    template<class T, VulkanBufferType B, class IT>
-    requires std::contiguous_iterator<IT>
-    void CreateBuffer(std::shared_ptr<VulkanBuffer<T, B>>& buffer, IT it, uint32_t length)
+    VkCommandBuffer GetTemporaryCommandBuffer()
     {
-        auto hostBuffer   = std::make_shared<VulkanBuffer<T, B>>(Host, length);
-        auto deviceBuffer = std::make_shared<VulkanBuffer<T, B>>(Device, length);
-        hostBuffer->Write(it, length);
-        hostBuffer->CopyToDevice(m_device, deviceBuffer);
-        buffer = deviceBuffer;
+        return m_device.GetTemporaryCommandBuffer();
     }
 
+    void SubmitTemporaryCommandBuffer(VkCommandBuffer buffer)
+    {
+        m_device.SubmitTemporaryCommandBuffer(buffer);
+    }
+
+    void CreateBuffer(
+        std::shared_ptr<Buffer>& buffer,
+        BufferType               bufferType,
+        void*                    data,
+        uint32_t                 elementSize,
+        uint32_t                 elementCount
+    ) override
+    {
+        auto hostBuffer =
+            std::make_shared<VulkanBuffer>(bufferType, Host, elementSize, elementCount);
+        auto deviceBuffer =
+            std::make_shared<VulkanBuffer>(bufferType, Device, elementSize, elementCount);
+        hostBuffer->Write(data, elementSize * elementCount);
+        auto tempBuffer = GetTemporaryCommandBuffer();
+        hostBuffer->CopyToDevice(tempBuffer, static_pointer_cast<Buffer>(deviceBuffer));
+        SubmitTemporaryCommandBuffer(tempBuffer);
+        buffer = static_pointer_cast<Buffer>(deviceBuffer);
+    }
+
+    // TODO: virtual base
     void BindPipeline(RenderPipeline pipe)
     {
         auto commandBuffer = m_device.GetCommandBuffer();
@@ -105,24 +129,6 @@ class VulkanRenderer final : public Renderer
         }
     }
 
-    template<class V, class I>
-    void DrawWithBuffers(
-        std::shared_ptr<VulkanBuffer<V, VulkanBufferType::VertexBuffer>> vertexBuffer,
-        std::shared_ptr<VulkanBuffer<I, VulkanBufferType::IndexBuffer>>  indexBuffer
-    )
-    {
-        auto commandBuffer = m_device.GetCommandBuffer();
-        vertexBuffer->Bind(commandBuffer);
-        indexBuffer->Bind(commandBuffer);
-        indexBuffer->Draw(commandBuffer);
-    }
-
-    void DrawChunk(std::shared_ptr<Chunk> chunk)
-    {
-        DrawWithBuffers(chunk->vertexBuffer, chunk->indexBuffer);
-        m_frameChunks.push_back(chunk);
-    }
-
   private:
     VkShaderModule& CreateShaderModule(VkShaderModuleCreateInfo createInfo);
     constexpr VkPipelineShaderStageCreateInfo FillShaderStageCreateInfo(
@@ -140,14 +146,9 @@ class VulkanRenderer final : public Renderer
     std::shared_ptr<VulkanPipeline<TerrainVertex>> m_terrainPipeline;
     std::shared_ptr<VulkanPipeline<EmptyVertex>>   m_fullscreenPipeline;
 
-    std::vector<std::shared_ptr<VulkanBuffer<SimpleVertex, VertexBuffer>>> m_hostVertexBuffers;
-    std::vector<std::shared_ptr<VulkanBuffer<Index, IndexBuffer>>>         m_hostIndexBuffers;
-    std::vector<std::shared_ptr<VulkanBuffer<SimpleVertex, VertexBuffer>>> m_deviceVertexBuffers;
-    std::vector<std::shared_ptr<VulkanBuffer<Index, IndexBuffer>>>         m_deviceIndexBuffers;
-
-    // Hold on to chunk pointer so we don't call VulkanBuffer destructor
-    // while still in use by command buffer.
-    // TODO: untemplate VulkanBuffer for generic ref holding? :(
-    std::vector<std::shared_ptr<Chunk>> m_frameChunks;
+    std::vector<std::shared_ptr<VulkanBuffer>> m_hostVertexBuffers;
+    std::vector<std::shared_ptr<VulkanBuffer>> m_hostIndexBuffers;
+    std::vector<std::shared_ptr<VulkanBuffer>> m_deviceVertexBuffers;
+    std::vector<std::shared_ptr<VulkanBuffer>> m_deviceIndexBuffers;
 };
 } // namespace drive

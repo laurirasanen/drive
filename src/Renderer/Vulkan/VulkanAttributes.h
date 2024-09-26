@@ -73,18 +73,4 @@ constexpr std::vector<VkVertexInputAttributeDescription> GetVulkanAttributeDescr
 
     return desc;
 }
-
-template<typename T>
-constexpr VkIndexType GetVulkanIndexType()
-{
-    if constexpr (std::is_same_v<T, Index>)
-    {
-        return VK_INDEX_TYPE_UINT32;
-    }
-    else
-    {
-        static_assert(false, "Unhandled index type");
-    }
-}
-
 } // namespace drive

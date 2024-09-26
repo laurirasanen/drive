@@ -7,6 +7,7 @@ shadercompiler_src = files([
 
 drive_src = files([
   'Renderer/Vulkan/VmaUsage.cpp',
+  'Renderer/Vulkan/VulkanBuffer.cpp',
   'Renderer/Vulkan/VulkanDescriptorSet.cpp',
   'Renderer/Vulkan/VulkanDevice.cpp',
   'Renderer/Vulkan/VulkanInstance.cpp',
