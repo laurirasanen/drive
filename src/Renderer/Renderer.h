@@ -14,6 +14,7 @@ namespace drive
 {
 enum RendererType
 {
+    EMPTY,
     VULKAN,
 };
 
@@ -54,11 +55,14 @@ class Renderer
     void DrawWithBuffers(std::shared_ptr<Buffer> vertexBuffer, std::shared_ptr<Buffer> indexBuffer)
     {
         auto commandBuffer = GetCommandBuffer();
-        vertexBuffer->Bind(commandBuffer);
-        indexBuffer->Bind(commandBuffer);
-        indexBuffer->Draw(commandBuffer);
-        m_frameBuffers.push_back(vertexBuffer);
-        m_frameBuffers.push_back(indexBuffer);
+        if (commandBuffer != nullptr)
+        {
+            vertexBuffer->Bind(commandBuffer);
+            indexBuffer->Bind(commandBuffer);
+            indexBuffer->Draw(commandBuffer);
+            m_frameBuffers.push_back(vertexBuffer);
+            m_frameBuffers.push_back(indexBuffer);
+        }
     }
 
     // Hold so we don't call Buffer destructor

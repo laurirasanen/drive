@@ -5,7 +5,6 @@
 
 #include <imgui_impl_vulkan.h>
 
-#include "../../World/Chunk.h"
 #include "../Renderer.h"
 #include "VulkanBuffer.h"
 #include "VulkanCommon.h"

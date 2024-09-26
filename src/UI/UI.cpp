@@ -29,6 +29,12 @@ UI::UI(std::shared_ptr<Window> window, std::shared_ptr<Renderer> renderer) :
 
     switch (m_renderer->Type())
     {
+        case RendererType::EMPTY:
+        {
+            ImGui_ImplSDL2_InitForOther(m_window->GetSDLWindow());
+            break;
+        }
+
         case RendererType::VULKAN:
         {
             ImGui_ImplSDL2_InitForVulkan(m_window->GetSDLWindow());
@@ -51,6 +57,11 @@ UI::~UI()
 
     switch (m_renderer->Type())
     {
+        case RendererType::EMPTY:
+        {
+            break;
+        }
+
         case RendererType::VULKAN:
         {
             ImGui_ImplVulkan_Shutdown();
@@ -73,6 +84,11 @@ void UI::Render()
     // Start new frame
     switch (m_renderer->Type())
     {
+        case RendererType::EMPTY:
+        {
+            return;
+        }
+
         case RendererType::VULKAN:
         {
             ImGui_ImplVulkan_NewFrame();
@@ -94,6 +110,11 @@ void UI::Render()
     // Pass the data to renderer
     switch (m_renderer->Type())
     {
+        case RendererType::EMPTY:
+        {
+            break;
+        }
+
         case RendererType::VULKAN:
         {
             auto data           = ImGui::GetDrawData();

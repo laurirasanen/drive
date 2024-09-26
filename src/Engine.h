@@ -19,7 +19,7 @@ namespace drive
 class Engine
 {
   public:
-    Engine();
+    Engine(RendererType rendererType);
     ~Engine();
 
   private:

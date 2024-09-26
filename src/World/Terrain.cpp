@@ -71,8 +71,11 @@ void Terrain::Render()
                     chunk->indices.clear();
                 }
 
-                auto vulkanRenderer = static_pointer_cast<VulkanRenderer>(m_renderer);
-                vulkanRenderer->BindPipeline(RenderPipeline::TERRAIN);
+                if (m_renderer->Type() == RendererType::VULKAN)
+                {
+                    auto vulkanRenderer = static_pointer_cast<VulkanRenderer>(m_renderer);
+                    vulkanRenderer->BindPipeline(RenderPipeline::TERRAIN);
+                }
                 m_renderer->DrawWithBuffers(
                     m_loadedChunks[x][y]->vertexBuffer,
                     m_loadedChunks[x][y]->indexBuffer
