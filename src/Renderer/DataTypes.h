@@ -73,11 +73,12 @@ struct UniformBufferObject
 
         viewport = cam->viewport;
 
-        auto sunRotation = glm::angleAxis(
-            glm::radians(45.0f * static_cast<float>(Time::Uptime())),
-            glm::normalize(glm::vec3 {1.0f, 0.3f, 0.2f})
+        const auto degreesPerSecond = 0.5;
+        auto       sunRotation      = glm::angleAxis(
+            glm::radians(degreesPerSecond * Time::Uptime()),
+            glm::normalize(glm::dvec3 {1.0, 0.3, 0.2})
         );
-        sunDir   = glm::normalize(sunRotation * glm::vec3(0.1f, 0.2f, 1.0f));
+        sunDir   = glm::normalize(sunRotation * glm::dvec3(0.1, 0.2, 1.0));
         sunColor = glm::vec3(0.5, 0.5, 0.5);
     }
 };
