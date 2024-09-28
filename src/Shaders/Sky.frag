@@ -20,7 +20,7 @@ void main()
     baseColor.rgb *= dayAmount;
     brightColor.rgb *= dayAmount;
 
-    float horizonAmount = 3.0 * smoothstep(0.6, -0.4, ubo.sunDir.z);
+    float horizonAmount = 3.0 * smoothstep(0.9, -0.4, ubo.sunDir.z);
     vec3 horizonColor = 1.0 + vec3(horizonAmount, 0.0, -0.4 * horizonAmount);
     darkColor.rgb *= horizonColor;
     baseColor.rgb *= horizonColor;
