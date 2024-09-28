@@ -39,10 +39,10 @@ class Terrain
     void LoadChunks();
     void GenerateChunk(std::shared_ptr<Chunk> chunk);
 
-    TerrainVertex GenerateTerrain(glm::vec2 worldPos);
-    float         TerrainHeight(glm::vec2 pos);
-    float         TerrainNoise(glm::vec2 pos, int octaves);
-    float         RoadNoise(glm::vec2 pos);
+    Vertex_P_N_C GenerateTerrain(glm::vec2 worldPos);
+    float        TerrainHeight(glm::vec2 pos);
+    float        TerrainNoise(glm::vec2 pos, int octaves);
+    float        RoadNoise(glm::vec2 pos);
 
     // Returns a loaded chunk at position (chunk-space).
     // nullptr if position is not loaded.

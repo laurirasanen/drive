@@ -15,13 +15,6 @@
 
 namespace drive
 {
-enum RenderPipeline
-{
-    TEST,
-    TERRAIN,
-    FULLSCREEN,
-};
-
 class VulkanRenderer final : public Renderer
 {
   public:
@@ -101,8 +94,7 @@ class VulkanRenderer final : public Renderer
         buffer = static_pointer_cast<Buffer>(deviceBuffer);
     }
 
-    // TODO: virtual base
-    void BindPipeline(RenderPipeline pipe)
+    void BindPipeline(RenderPipeline pipe) override
     {
         auto commandBuffer = m_device.GetCommandBuffer();
         auto currentFrame  = m_device.GetCurrentFrame();
@@ -110,21 +102,35 @@ class VulkanRenderer final : public Renderer
         switch (pipe)
         {
             case TEST:
+            {
                 m_testPipeline->Bind(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentFrame);
                 break;
+            }
 
             case TERRAIN:
+            {
                 m_terrainPipeline
                     ->Bind(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentFrame);
                 break;
+            }
 
             case FULLSCREEN:
+            {
                 m_fullscreenPipeline
                     ->Bind(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentFrame);
                 break;
+            }
+
+            case SKY:
+            {
+                m_skyPipeline->Bind(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentFrame);
+                break;
+            }
 
             default:
+            {
                 throw std::runtime_error("unknown pipeline");
+            }
         }
     }
 
@@ -141,9 +147,10 @@ class VulkanRenderer final : public Renderer
     std::shared_ptr<VulkanDescriptorSet> m_descriptorSet;
     std::vector<VkShaderModule>          m_vkShaderModules;
 
-    std::shared_ptr<VulkanPipeline<SimpleVertex>>  m_testPipeline;
-    std::shared_ptr<VulkanPipeline<TerrainVertex>> m_terrainPipeline;
-    std::shared_ptr<VulkanPipeline<EmptyVertex>>   m_fullscreenPipeline;
+    std::shared_ptr<VulkanPipeline<Vertex_P_C>>   m_testPipeline;
+    std::shared_ptr<VulkanPipeline<Vertex_P_N_C>> m_terrainPipeline;
+    std::shared_ptr<VulkanPipeline<VertexEmpty>>  m_fullscreenPipeline;
+    std::shared_ptr<VulkanPipeline<Vertex_P>>     m_skyPipeline;
 
     std::vector<std::shared_ptr<VulkanBuffer>> m_hostVertexBuffers;
     std::vector<std::shared_ptr<VulkanBuffer>> m_hostIndexBuffers;

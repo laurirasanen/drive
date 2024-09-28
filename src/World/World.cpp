@@ -8,6 +8,7 @@ World::World(std::shared_ptr<Renderer> renderer)
 {
     LOG_DEBUG("Creating World");
     m_terrain = std::make_unique<Terrain>(renderer);
+    m_sky     = std::make_unique<Sky>(renderer);
 }
 
 World::~World()
@@ -30,5 +31,6 @@ void World::Tick(std::shared_ptr<Camera> camera)
 void World::Render()
 {
     m_terrain->Render();
+    m_sky->Render();
 }
 } // namespace drive

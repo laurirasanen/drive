@@ -26,6 +26,7 @@ VulkanRenderer::VulkanRenderer(std::shared_ptr<Window> window) :
     }
     m_descriptorSet = std::make_shared<VulkanDescriptorSet>(m_device, uboBuffers);
 
+    // TODO: abstract away all the shader + pipeline setup
     auto moduleSimpleFrag = CreateShaderModule(LOAD_VULKAN_SPV(Simple_frag));
     auto moduleSimpleVert = CreateShaderModule(LOAD_VULKAN_SPV(Simple_vert));
     auto stageSimpleFrag =
@@ -34,7 +35,7 @@ VulkanRenderer::VulkanRenderer(std::shared_ptr<Window> window) :
     std::vector simpleStages {stageSimpleFrag, stageSimpleVert};
 
     m_testPipeline =
-        std::make_shared<VulkanPipeline<SimpleVertex>>(m_device, m_descriptorSet, simpleStages);
+        std::make_shared<VulkanPipeline<Vertex_P_C>>(m_device, m_descriptorSet, simpleStages);
 
     auto moduleTerrainFrag = CreateShaderModule(LOAD_VULKAN_SPV(Terrain_frag));
     auto moduleTerrainVert = CreateShaderModule(LOAD_VULKAN_SPV(Terrain_vert));
@@ -45,7 +46,7 @@ VulkanRenderer::VulkanRenderer(std::shared_ptr<Window> window) :
     std::vector terrainStages {stageTerrainFrag, stageTerrainVert};
 
     m_terrainPipeline =
-        std::make_shared<VulkanPipeline<TerrainVertex>>(m_device, m_descriptorSet, terrainStages);
+        std::make_shared<VulkanPipeline<Vertex_P_N_C>>(m_device, m_descriptorSet, terrainStages);
 
     auto moduleFullscreenFrag = CreateShaderModule(LOAD_VULKAN_SPV(Fullscreen_frag));
     auto moduleFullscreenVert = CreateShaderModule(LOAD_VULKAN_SPV(Fullscreen_vert));
@@ -55,7 +56,7 @@ VulkanRenderer::VulkanRenderer(std::shared_ptr<Window> window) :
         FillShaderStageCreateInfo(moduleFullscreenVert, VK_SHADER_STAGE_VERTEX_BIT);
     std::vector fullscreenStages {stageFullscreenFrag, stageFullscreenVert};
 
-    m_fullscreenPipeline = std::make_shared<VulkanPipeline<EmptyVertex>>(
+    m_fullscreenPipeline = std::make_shared<VulkanPipeline<VertexEmpty>>(
         m_device,
         m_descriptorSet,
         fullscreenStages,
@@ -63,22 +64,31 @@ VulkanRenderer::VulkanRenderer(std::shared_ptr<Window> window) :
         false
     );
 
+    auto moduleSkyFrag = CreateShaderModule(LOAD_VULKAN_SPV(Sky_frag));
+    auto moduleSkyVert = CreateShaderModule(LOAD_VULKAN_SPV(Sky_vert));
+    auto stageSkyFrag  = FillShaderStageCreateInfo(moduleSkyFrag, VK_SHADER_STAGE_FRAGMENT_BIT);
+    auto stageSkyVert  = FillShaderStageCreateInfo(moduleSkyVert, VK_SHADER_STAGE_VERTEX_BIT);
+    std::vector skyStages {stageSkyFrag, stageSkyVert};
+
+    m_skyPipeline =
+        std::make_shared<VulkanPipeline<Vertex_P>>(m_device, m_descriptorSet, skyStages);
+
     // test plane
-    std::vector<SimpleVertex> vertices = {
-        {{-0.5, -0.5, 63.0}, {1.0f, 0.0f, -0.1f}},
-        { {0.5, -0.5, 63.0}, {0.0f, 1.0f, -0.1f}},
-        {  {0.5, 0.5, 63.0},  {0.0f, 0.0f, 0.9f}},
-        { {-0.5, 0.5, 63.0},  {1.0f, 1.0f, 0.9f}},
+    std::vector<Vertex_P_C> vertices = {
+        {{-0.5, -0.5, 100.0}, {1.0f, 0.0f, -0.1f}},
+        { {0.5, -0.5, 100.0}, {0.0f, 1.0f, -0.1f}},
+        {  {0.5, 0.5, 100.0},  {0.0f, 0.0f, 0.9f}},
+        { {-0.5, 0.5, 100.0},  {1.0f, 1.0f, 0.9f}},
     };
-    std::vector<Index> indices = {{0}, {1}, {2}, {2}, {3}, {0}};
+    std::vector<Index> indices = {0, 1, 2, 2, 3, 0};
 
     auto hostVertexBuffer =
-        std::make_shared<VulkanBuffer>(VertexBuffer, Host, sizeof(SimpleVertex), vertices.size());
+        std::make_shared<VulkanBuffer>(VertexBuffer, Host, sizeof(Vertex_P_C), vertices.size());
     auto deviceVertexBuffer =
-        std::make_shared<VulkanBuffer>(VertexBuffer, Device, sizeof(SimpleVertex), vertices.size());
+        std::make_shared<VulkanBuffer>(VertexBuffer, Device, sizeof(Vertex_P_C), vertices.size());
     hostVertexBuffer->Write(
         vertices.data(),
-        sizeof(SimpleVertex) * static_cast<uint32_t>(vertices.size())
+        sizeof(Vertex_P_C) * static_cast<uint32_t>(vertices.size())
     );
     auto tempBuffer = GetTemporaryCommandBuffer();
     hostVertexBuffer->CopyToDevice(tempBuffer, static_pointer_cast<Buffer>(deviceVertexBuffer));
@@ -105,6 +115,7 @@ VulkanRenderer::~VulkanRenderer()
     m_testPipeline.reset();
     m_terrainPipeline.reset();
     m_fullscreenPipeline.reset();
+    m_skyPipeline.reset();
 
     m_descriptorSet.reset();
 

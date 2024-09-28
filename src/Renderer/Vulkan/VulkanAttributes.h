@@ -26,7 +26,16 @@ constexpr std::vector<VkVertexInputAttributeDescription> GetVulkanAttributeDescr
 
     // TODO: reflection
 
-    if constexpr (std::is_same_v<T, SimpleVertex>)
+    if constexpr (std::is_same_v<T, Vertex_P>)
+    {
+        desc.push_back({
+            .location = 0,
+            .binding  = 0,
+            .format   = VK_FORMAT_R32G32B32_SFLOAT,
+            .offset   = offsetof(T, position),
+        });
+    }
+    else if constexpr (std::is_same_v<T, Vertex_P_C>)
     {
         desc.push_back({
             .location = 0,
@@ -41,7 +50,7 @@ constexpr std::vector<VkVertexInputAttributeDescription> GetVulkanAttributeDescr
             .offset   = offsetof(T, color),
         });
     }
-    else if constexpr (std::is_same_v<T, TerrainVertex>)
+    else if constexpr (std::is_same_v<T, Vertex_P_N_C>)
     {
         desc.push_back({
             .location = 0,
@@ -62,7 +71,7 @@ constexpr std::vector<VkVertexInputAttributeDescription> GetVulkanAttributeDescr
             .offset   = offsetof(T, color),
         });
     }
-    else if constexpr (std::is_same_v<T, EmptyVertex>)
+    else if constexpr (std::is_same_v<T, VertexEmpty>)
     {
         // nada
     }

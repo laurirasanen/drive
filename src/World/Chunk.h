@@ -18,8 +18,8 @@ struct Chunk
     glm::vec2  worldPosition;
     glm::vec2  worldCenter;
 
-    std::vector<TerrainVertex> vertices;
-    std::vector<Index>         indices;
+    std::vector<Vertex_P_N_C> vertices;
+    std::vector<Index>        indices;
 
     std::shared_ptr<Buffer> vertexBuffer;
     std::shared_ptr<Buffer> indexBuffer;

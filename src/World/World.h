@@ -3,6 +3,7 @@
 #include <memory>
 #include <mutex>
 
+#include "Sky.h"
 #include "Terrain.h"
 
 namespace drive
@@ -27,5 +28,6 @@ class World
     std::mutex m_worldMutex;
 
     std::unique_ptr<Terrain> m_terrain;
+    std::unique_ptr<Sky>     m_sky;
 };
 } // namespace drive

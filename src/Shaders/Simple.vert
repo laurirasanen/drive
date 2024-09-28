@@ -1,6 +1,6 @@
 #version 450
 
-#include "include/SimpleVertex.glsl"
+#include "include/VertexPC.glsl"
 #include "include/UniformBufferObject.glsl"
 
 layout(location = 0) out vec3 fragColor;

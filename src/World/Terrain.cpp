@@ -57,7 +57,7 @@ void Terrain::Render()
                         chunk->vertexBuffer,
                         VertexBuffer,
                         chunk->vertices.data(),
-                        sizeof(TerrainVertex),
+                        sizeof(Vertex_P_N_C),
                         static_cast<uint32_t>(chunk->vertices.size())
                     );
                     m_renderer->CreateBuffer(
@@ -71,15 +71,11 @@ void Terrain::Render()
                     chunk->indices.clear();
                 }
 
-                if (m_renderer->Type() == RendererType::VULKAN)
+                if (chunk->vertexBuffer && chunk->indexBuffer)
                 {
-                    auto vulkanRenderer = static_pointer_cast<VulkanRenderer>(m_renderer);
-                    vulkanRenderer->BindPipeline(RenderPipeline::TERRAIN);
+                    m_renderer->BindPipeline(RenderPipeline::TERRAIN);
+                    m_renderer->DrawWithBuffers(chunk->vertexBuffer, chunk->indexBuffer);
                 }
-                m_renderer->DrawWithBuffers(
-                    m_loadedChunks[x][y]->vertexBuffer,
-                    m_loadedChunks[x][y]->indexBuffer
-                );
             }
         }
     }
@@ -169,7 +165,7 @@ void Terrain::GenerateChunk(std::shared_ptr<Chunk> chunk)
     const unsigned int verticesCount   = verticesPerSide * verticesPerSide;
     const unsigned int indicesCount    = quadsPerSide * quadsPerSide * 6;
 
-    chunk->vertices = std::vector<TerrainVertex>(verticesCount);
+    chunk->vertices = std::vector<Vertex_P_N_C>(verticesCount);
     chunk->indices  = std::vector<Index>(indicesCount);
 
     for (unsigned int x = 0; x < verticesPerSide; x++)
@@ -203,7 +199,7 @@ void Terrain::GenerateChunk(std::shared_ptr<Chunk> chunk)
     }
 }
 
-TerrainVertex Terrain::GenerateTerrain(glm::vec2 worldPos)
+Vertex_P_N_C Terrain::GenerateTerrain(glm::vec2 worldPos)
 {
     const auto  noisePos     = worldPos * TERRAIN_NOISE_SCALE;
     const float vertexHeight = TerrainHeight(noisePos);
@@ -237,7 +233,7 @@ TerrainVertex Terrain::GenerateTerrain(glm::vec2 worldPos)
         color = roadSideColor;
     }
 
-    return TerrainVertex {
+    return Vertex_P_N_C {
         {worldPos.x, worldPos.y, vertexHeight},
         normal,
         color

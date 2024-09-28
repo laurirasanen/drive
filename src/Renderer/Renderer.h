@@ -18,6 +18,14 @@ enum RendererType
     VULKAN,
 };
 
+enum RenderPipeline
+{
+    TEST,
+    TERRAIN,
+    FULLSCREEN,
+    SKY,
+};
+
 class Renderer
 {
   public:
@@ -43,6 +51,7 @@ class Renderer
     virtual RendererType Type() const                                         = 0;
     virtual void         WaitForIdle()                                        = 0;
     virtual void*        GetCommandBuffer()                                   = 0;
+    virtual void         BindPipeline(RenderPipeline pipe)                    = 0;
 
     virtual void CreateBuffer(
         std::shared_ptr<Buffer>& buffer,

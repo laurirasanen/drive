@@ -11,13 +11,18 @@
 
 namespace drive
 {
-struct SimpleVertex
+struct Vertex_P
+{
+    glm::vec3 position;
+};
+
+struct Vertex_P_C
 {
     glm::vec3 position;
     glm::vec3 color;
 };
 
-struct TerrainVertex
+struct Vertex_P_N_C
 {
     glm::vec3 position;
     glm::vec3 normal;
@@ -25,24 +30,11 @@ struct TerrainVertex
 };
 
 // For fullscreen triangle
-struct EmptyVertex
+struct VertexEmpty
 {
 };
 
-struct Index
-{
-    uint32_t index;
-
-    Index()
-    {
-        index = 0;
-    }
-
-    Index(const uint32_t i)
-    {
-        index = i;
-    }
-};
+typedef uint32_t Index;
 
 struct UniformBufferObject
 {

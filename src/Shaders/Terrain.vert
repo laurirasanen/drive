@@ -1,6 +1,6 @@
 #version 450
 
-#include "include/TerrainVertex.glsl"
+#include "include/VertexPNC.glsl"
 #include "include/UniformBufferObject.glsl"
 #include "include/Lighting.glsl"
 

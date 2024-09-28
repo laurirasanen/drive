@@ -13,17 +13,19 @@
 
 namespace drive
 {
+#define CAM_FAR 1000.0f
+
 class Camera
 {
   public:
     Camera()
     {
         transform          = {};
-        transform.position = glm::vec3(0, -3.0, 64.0);
+        transform.position = glm::vec3(0, -3.0, 100.0);
         fov                = 60.0f;
         aspect             = 16.0f / 9.0f;
         near               = 0.1f;
-        far                = 1000.0f;
+        far                = CAM_FAR;
         UpdateMatrices();
     }
 
