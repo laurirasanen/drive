@@ -51,13 +51,18 @@ struct UniformBufferObject
     alignas(16) glm::mat4 proj;
     alignas(16) glm::vec3 eye;
 
+    alignas(16) glm::vec3 sunDir;
+    alignas(16) glm::vec3 sunColor;
+
     UniformBufferObject(const std::shared_ptr<Camera> cam)
     {
         model = glm::identity<glm::mat4>();
         view  = cam->view;
         proj  = cam->proj;
         eye   = cam->transform.position;
+
+        sunColor = glm::vec3(0.5, 0.5, 0.5);
+        sunDir   = glm::normalize(glm::vec3(0.4, 1.0, 0.6));
     }
 };
-
 } // namespace drive
