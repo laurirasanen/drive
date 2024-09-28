@@ -13,7 +13,8 @@
 
 namespace drive
 {
-#define CAM_FAR 1000.0f
+#define CAM_NEAR 0.1f
+#define CAM_FAR  1000.0f
 
 class Camera
 {
@@ -23,9 +24,9 @@ class Camera
         transform          = {};
         transform.position = glm::vec3(0, -3.0, 100.0);
         fov                = 60.0f;
-        aspect             = 16.0f / 9.0f;
-        near               = 0.1f;
+        near               = CAM_NEAR;
         far                = CAM_FAR;
+        UpdateViewport(1920.0f, 1080.0f);
         UpdateMatrices();
     }
 
@@ -63,6 +64,15 @@ class Camera
         proj[1][1] *= -1; // OpenGL Y flip
     }
 
+    void UpdateViewport(int width, int height)
+    {
+        aspect     = static_cast<float>(width) / static_cast<float>(height);
+        viewport.x = static_cast<float>(width);
+        viewport.y = static_cast<float>(height);
+        viewport.z = CAM_NEAR;
+        viewport.w = CAM_FAR;
+    }
+
     virtual void HandleInput(WindowInput) {};
 
     Transform transform;
@@ -70,6 +80,7 @@ class Camera
     float     aspect;
     float     near;
     float     far;
+    glm::vec4 viewport;
     glm::mat4 view;
     glm::mat4 proj;
 };
