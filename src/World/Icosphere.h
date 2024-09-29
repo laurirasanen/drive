@@ -69,14 +69,8 @@ struct Icosphere
 
     Icosphere(glm::vec3 origin, float radius, unsigned int subdivisions, bool invert = false)
     {
-        if (subdivisions > 0)
-        {
-            LOG_ERROR("FIXME: subdivisions are broken!");
-            subdivisions = 0;
-        }
-
         // Don't be silly...
-        // 2.6k verts should be enough for anything
+        // 10k verts should be enough for anything
         const unsigned int maxDiv = 5;
         if (subdivisions > maxDiv)
         {
@@ -85,9 +79,7 @@ struct Icosphere
         }
 
         auto numIndices = static_cast<size_t>(60 * std::pow(4, subdivisions));
-        // TODO: figure out formula for this
-        const size_t numVertsForDiv[] = {12, 40, 116, 328, 928, 2632};
-        auto         numVerts         = numVertsForDiv[subdivisions];
+        auto numVerts   = static_cast<size_t>(12 + 10 * (std::pow(4, subdivisions) - 1));
 
         positions.reserve(numVerts);
         indices.reserve(60);
@@ -156,7 +148,7 @@ struct Icosphere
             for (unsigned int edge = 0; edge < 3; edge++)
             {
                 const auto first  = i + edge;
-                const auto second = (first + 1) % 3;
+                const auto second = i + ((edge + 1) % 3);
                 mid[edge]         = EdgeVertex(edgeMap, indices[first], indices[second]);
             }
 

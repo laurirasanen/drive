@@ -19,7 +19,7 @@ struct Sky
     Sky(std::shared_ptr<Renderer> rend)
     {
         renderer       = rend;
-        auto icosphere = Icosphere({}, CAM_FAR * 0.95f, 0, true);
+        auto icosphere = Icosphere({}, CAM_FAR * 0.95f, 1, true);
 
         std::vector<Vertex_P> vertices;
         vertices.reserve(icosphere.positions.size());

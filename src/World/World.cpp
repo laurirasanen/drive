@@ -12,21 +12,21 @@ World::World(std::shared_ptr<Renderer> renderer) : m_renderer(renderer)
     m_sky     = std::make_unique<Sky>(renderer);
 
     // Test icosphere
-    auto                      testSphere = Icosphere(glm::vec3(0, 0, 105), 5.0f, 0);
-    std::vector<Vertex_P_N_C> vertices;
-    vertices.reserve(testSphere.positions.size());
+    auto                      testSphere = Icosphere(glm::vec3(0, 0, 106), 5.0f, 2);
+    std::vector<Vertex_P_N_C> sphereVertices;
+    sphereVertices.reserve(testSphere.positions.size());
     for (unsigned int i = 0; i < testSphere.positions.size(); i++)
     {
-        vertices.push_back(
+        sphereVertices.push_back(
             {testSphere.positions[i], testSphere.normals[i], glm::vec3(0.5, 0.5, 0.5)}
         );
     }
     renderer->CreateBuffer(
         m_testSphereVertexBuffer,
         VertexBuffer,
-        vertices.data(),
-        sizeof(Vertex_P),
-        static_cast<uint32_t>(vertices.size())
+        sphereVertices.data(),
+        sizeof(Vertex_P_N_C),
+        static_cast<uint32_t>(sphereVertices.size())
     );
     renderer->CreateBuffer(
         m_testSphereIndexBuffer,
