@@ -206,7 +206,7 @@ Vertex_P_N_C Terrain::GenerateTerrain(glm::vec2 worldPos)
     const auto  pos          = glm::vec3(worldPos.x, worldPos.y, vertexHeight);
 
     // Figure out the vertex normal by sampling noise from 2 more spots
-    const float noiseNormalOffset = 0.01f * TERRAIN_NOISE_SCALE;
+    const float noiseNormalOffset = 0.5f * TERRAIN_NOISE_SCALE;
     const auto  xPos              = glm::vec2(noisePos.x + noiseNormalOffset, noisePos.y);
     const auto  yPos              = glm::vec2(noisePos.x, noisePos.y + noiseNormalOffset);
     const float heightX           = TerrainHeight(xPos);
