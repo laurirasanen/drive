@@ -45,7 +45,6 @@ class VulkanRenderer final : public Renderer
     void  Submit() override;
     void  Present() override;
     void  UpdateUniforms(const std::shared_ptr<Camera> camera) override;
-    void  DrawTest() override;
     void  WaitForIdle() override;
 
     void* GetCommandBuffer() override
@@ -151,10 +150,5 @@ class VulkanRenderer final : public Renderer
     std::shared_ptr<VulkanPipeline<Vertex_P_N_C>> m_terrainPipeline;
     std::shared_ptr<VulkanPipeline<VertexEmpty>>  m_fullscreenPipeline;
     std::shared_ptr<VulkanPipeline<Vertex_P>>     m_skyPipeline;
-
-    std::vector<std::shared_ptr<VulkanBuffer>> m_hostVertexBuffers;
-    std::vector<std::shared_ptr<VulkanBuffer>> m_hostIndexBuffers;
-    std::vector<std::shared_ptr<VulkanBuffer>> m_deviceVertexBuffers;
-    std::vector<std::shared_ptr<VulkanBuffer>> m_deviceIndexBuffers;
 };
 } // namespace drive

@@ -235,8 +235,6 @@ void Engine::RenderThread(const std::stop_token token)
 
         m_world->Render();
 
-        m_renderer->DrawTest();
-
         m_ui->Render();
 
         m_renderer->Submit();

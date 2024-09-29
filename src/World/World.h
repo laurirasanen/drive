@@ -3,6 +3,7 @@
 #include <memory>
 #include <mutex>
 
+#include "Icosphere.h"
 #include "Sky.h"
 #include "Terrain.h"
 
@@ -27,7 +28,15 @@ class World
   private:
     std::mutex m_worldMutex;
 
+    std::shared_ptr<Renderer> m_renderer;
+
     std::unique_ptr<Terrain> m_terrain;
     std::unique_ptr<Sky>     m_sky;
+
+    std::shared_ptr<Buffer> m_testSphereVertexBuffer;
+    std::shared_ptr<Buffer> m_testSphereIndexBuffer;
+
+    std::shared_ptr<Buffer> m_testPlaneVertexBuffer;
+    std::shared_ptr<Buffer> m_testPlaneIndexBuffer;
 };
 } // namespace drive

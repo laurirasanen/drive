@@ -47,7 +47,6 @@ class Renderer
     virtual void         Submit()                                             = 0;
     virtual void         Present()                                            = 0;
     virtual void         UpdateUniforms(const std::shared_ptr<Camera> camera) = 0;
-    virtual void         DrawTest()                                           = 0;
     virtual RendererType Type() const                                         = 0;
     virtual void         WaitForIdle()                                        = 0;
     virtual void*        GetCommandBuffer()                                   = 0;

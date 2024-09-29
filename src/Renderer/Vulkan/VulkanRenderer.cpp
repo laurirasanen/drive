@@ -72,38 +72,6 @@ VulkanRenderer::VulkanRenderer(std::shared_ptr<Window> window) :
 
     m_skyPipeline =
         std::make_shared<VulkanPipeline<Vertex_P>>(m_device, m_descriptorSet, skyStages);
-
-    // test plane
-    std::vector<Vertex_P_C> vertices = {
-        {{-0.5, -0.5, 100.0}, {1.0f, 0.0f, -0.1f}},
-        { {0.5, -0.5, 100.0}, {0.0f, 1.0f, -0.1f}},
-        {  {0.5, 0.5, 100.0},  {0.0f, 0.0f, 0.9f}},
-        { {-0.5, 0.5, 100.0},  {1.0f, 1.0f, 0.9f}},
-    };
-    std::vector<Index> indices = {0, 1, 2, 2, 3, 0};
-
-    auto hostVertexBuffer =
-        std::make_shared<VulkanBuffer>(VertexBuffer, Host, sizeof(Vertex_P_C), vertices.size());
-    auto deviceVertexBuffer =
-        std::make_shared<VulkanBuffer>(VertexBuffer, Device, sizeof(Vertex_P_C), vertices.size());
-    hostVertexBuffer->Write(
-        vertices.data(),
-        sizeof(Vertex_P_C) * static_cast<uint32_t>(vertices.size())
-    );
-    auto tempBuffer = GetTemporaryCommandBuffer();
-    hostVertexBuffer->CopyToDevice(tempBuffer, static_pointer_cast<Buffer>(deviceVertexBuffer));
-    SubmitTemporaryCommandBuffer(tempBuffer);
-    m_deviceVertexBuffers.push_back(deviceVertexBuffer);
-
-    auto hostIndexBuffer =
-        std::make_shared<VulkanBuffer>(IndexBuffer, Host, sizeof(Index), indices.size());
-    auto deviceIndexBuffer =
-        std::make_shared<VulkanBuffer>(IndexBuffer, Device, sizeof(Index), indices.size());
-    hostIndexBuffer->Write(indices.data(), sizeof(Index) * static_cast<uint32_t>(indices.size()));
-    tempBuffer = GetTemporaryCommandBuffer();
-    hostIndexBuffer->CopyToDevice(tempBuffer, static_pointer_cast<Buffer>(deviceIndexBuffer));
-    SubmitTemporaryCommandBuffer(tempBuffer);
-    m_deviceIndexBuffers.push_back(deviceIndexBuffer);
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -124,10 +92,6 @@ VulkanRenderer::~VulkanRenderer()
         vkDestroyShaderModule(m_device.GetVkDevice(), module, nullptr);
     }
 
-    m_deviceVertexBuffers.clear();
-    m_deviceIndexBuffers.clear();
-    m_hostVertexBuffers.clear();
-    m_hostIndexBuffers.clear();
     m_frameBuffers.clear();
 }
 
@@ -180,12 +144,6 @@ void VulkanRenderer::UpdateUniforms(const std::shared_ptr<Camera> camera)
     auto currentFrame = m_device.GetCurrentFrame();
     auto ubo          = UniformBufferObject(camera);
     m_descriptorSet->UpdateUBO(currentFrame, &ubo);
-}
-
-void VulkanRenderer::DrawTest()
-{
-    BindPipeline(RenderPipeline::TEST);
-    DrawWithBuffers(m_deviceVertexBuffers[0], m_deviceIndexBuffers[0]);
 }
 
 void VulkanRenderer::WaitForIdle()

@@ -54,10 +54,6 @@ class EmptyRenderer final : public Renderer
     {
     }
 
-    void DrawTest() override
-    {
-    }
-
     RendererType Type() const override
     {
         return RendererType::EMPTY;
