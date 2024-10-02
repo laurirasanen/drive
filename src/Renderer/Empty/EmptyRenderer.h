@@ -38,10 +38,6 @@ class EmptyRenderer final : public Renderer
         return 0.0f;
     }
 
-    void Begin() override
-    {
-    }
-
     void Submit() override
     {
     }
@@ -68,7 +64,22 @@ class EmptyRenderer final : public Renderer
         return nullptr;
     }
 
-    void BindPipeline(RenderPipeline /*pipe*/) override
+    void Begin() override
+    {
+        Renderer::Begin();
+    }
+
+    void BindPipeline(RenderPipeline pipe) override
+    {
+        if (m_currentPipeline == pipe)
+        {
+            return;
+        }
+
+        Renderer::BindPipeline(pipe);
+    }
+
+    void SetModelMatrix(const glm::mat4x4* /*model*/) override
     {
     }
 

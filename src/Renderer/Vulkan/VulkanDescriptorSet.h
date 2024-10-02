@@ -23,6 +23,7 @@ class VulkanDescriptorSet
     VulkanDescriptorSet& operator=(VulkanDescriptorSet&&)      = delete;
 
     void UpdateUBO(uint32_t frameIndex, const UniformBufferObject* ubo);
+    void UpdateModelMatrix(uint32_t frameIndex, const glm::mat4x4* model);
 
     void Bind(
         VkCommandBuffer     commandBuffer,
@@ -41,6 +42,6 @@ class VulkanDescriptorSet
     std::vector<VkDescriptorSetLayout>         m_vkLayouts;
     std::vector<VkDescriptorSet>               m_vkSets;
     std::vector<std::shared_ptr<VulkanBuffer>> m_uniformBuffers;
-    std::vector<void*>                         m_ubosMappedMemory;
+    std::vector<UniformBufferObject*>          m_ubosMappedMemory;
 };
 } // namespace drive

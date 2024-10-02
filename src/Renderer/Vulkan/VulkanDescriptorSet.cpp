@@ -18,7 +18,7 @@ VulkanDescriptorSet::VulkanDescriptorSet(
     uboBinding.binding            = 0;
     uboBinding.descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     uboBinding.descriptorCount    = 1;
-    uboBinding.stageFlags         = VK_SHADER_STAGE_VERTEX_BIT;
+    uboBinding.stageFlags         = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     uboBinding.pImmutableSamplers = nullptr;
 
     VkDescriptorSetLayoutCreateInfo layoutInfo {};
@@ -59,10 +59,10 @@ VulkanDescriptorSet::VulkanDescriptorSet(
     for (uint32_t i = 0; i < maxFrames; i++)
     {
         auto uniformBuffer = uboBuffers[i];
-        uniformBuffer->Map(&m_ubosMappedMemory[i]);
+        uniformBuffer->Map(reinterpret_cast<void**>(&m_ubosMappedMemory[i]));
 
         VkDescriptorBufferInfo bufferInfo {};
-        bufferInfo.buffer = uniformBuffer->GetVkBuffer();
+        bufferInfo.buffer = m_uniformBuffers[i]->GetVkBuffer();
         bufferInfo.offset = 0;
         bufferInfo.range  = VK_WHOLE_SIZE;
 
@@ -92,6 +92,12 @@ VulkanDescriptorSet::~VulkanDescriptorSet()
 void VulkanDescriptorSet::UpdateUBO(uint32_t frameIndex, const UniformBufferObject* ubo)
 {
     std::memcpy(m_ubosMappedMemory[frameIndex], ubo, sizeof(UniformBufferObject));
+}
+
+void VulkanDescriptorSet::UpdateModelMatrix(uint32_t frameIndex, const glm::mat4x4* model)
+{
+    std::memcpy(&m_ubosMappedMemory[frameIndex]->model, model, sizeof(glm::mat4x4));
+    // TODO dynamic ubo
 }
 
 void VulkanDescriptorSet::Bind(

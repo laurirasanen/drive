@@ -3,7 +3,6 @@
 #include <memory>
 #include <mutex>
 
-#include "Icosphere.h"
 #include "Sky.h"
 #include "Terrain.h"
 
@@ -23,7 +22,7 @@ class World
 
     void Frame();
     void Tick(std::shared_ptr<Camera> camera);
-    void Render();
+    void Render(std::shared_ptr<Camera> camera);
 
   private:
     std::mutex m_worldMutex;

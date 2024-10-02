@@ -41,10 +41,10 @@ class VulkanRenderer final : public Renderer
     void  ClearViewport() override;
     void  Resize() override;
     float GetAspect() override;
-    void  Begin() override;
     void  Submit() override;
     void  Present() override;
     void  UpdateUniforms(const std::shared_ptr<Camera> camera) override;
+    void  SetModelMatrix(const glm::mat4x4* model) override;
     void  WaitForIdle() override;
 
     void* GetCommandBuffer() override
@@ -93,8 +93,17 @@ class VulkanRenderer final : public Renderer
         buffer = static_pointer_cast<Buffer>(deviceBuffer);
     }
 
+    void Begin() override;
+
     void BindPipeline(RenderPipeline pipe) override
     {
+        if (m_currentPipeline == pipe)
+        {
+            return;
+        }
+
+        Renderer::BindPipeline(pipe);
+
         auto commandBuffer = m_device.GetCommandBuffer();
         auto currentFrame  = m_device.GetCurrentFrame();
 

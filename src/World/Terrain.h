@@ -16,6 +16,10 @@
 #define ROAD_NOISE_THRESHOLD     0.9f
 #define ROAD_HEIGHT              0.25f
 
+#define TREE_NOISE_SCALE     0.01f
+#define TREE_NOISE_THRESHOLD 0.5f
+#define TREE_SPACING         1.0f
+
 namespace drive
 {
 class Terrain
@@ -32,17 +36,20 @@ class Terrain
 
     void SetObserverPosition(glm::vec3 pos);
 
-    void Render();
+    void Render(std::shared_ptr<Camera> camera);
 
   private:
     void MoveChunks(glm::ivec2 delta);
     void LoadChunks();
     void GenerateChunk(std::shared_ptr<Chunk> chunk);
 
+    void         GenerateChunkTerrain(std::shared_ptr<Chunk> chunk);
     Vertex_P_N_C GenerateTerrain(glm::vec2 worldPos);
     float        TerrainHeight(glm::vec2 pos);
     float        TerrainNoise(glm::vec2 pos, int octaves);
     float        RoadNoise(glm::vec2 pos);
+
+    void GenerateChunkTrees(std::shared_ptr<Chunk> chunk);
 
     // Returns a loaded chunk at position (chunk-space).
     // nullptr if position is not loaded.
@@ -71,7 +78,8 @@ class Terrain
 
     std::shared_ptr<Renderer> m_renderer;
 
-    siv::PerlinNoise::seed_type  m_perlinSeed;
-    siv::BasicPerlinNoise<float> m_perlin;
+    siv::PerlinNoise::seed_type  m_noiseSeed;
+    siv::BasicPerlinNoise<float> m_terrainNoise;
+    siv::BasicPerlinNoise<float> m_treeNoise;
 };
 }; // namespace drive

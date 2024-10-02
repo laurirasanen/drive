@@ -233,7 +233,7 @@ void Engine::RenderThread(const std::stop_token token)
         m_renderer->Begin();
         m_renderer->UpdateUniforms(m_camera);
 
-        m_world->Render();
+        m_world->Render(m_camera);
 
         m_ui->Render();
 

@@ -1,5 +1,6 @@
-#include <imgui_impl_vulkan.h>
 #include <memory>
+
+#include <imgui_impl_vulkan.h>
 
 #include "../../Log.h"
 #include "../DataTypes.h"
@@ -122,6 +123,7 @@ float VulkanRenderer::GetAspect()
 
 void VulkanRenderer::Begin()
 {
+    Renderer::Begin();
     m_device.Begin();
 }
 
@@ -144,6 +146,49 @@ void VulkanRenderer::UpdateUniforms(const std::shared_ptr<Camera> camera)
     auto currentFrame = m_device.GetCurrentFrame();
     auto ubo          = UniformBufferObject(camera);
     m_descriptorSet->UpdateUBO(currentFrame, &ubo);
+}
+
+void VulkanRenderer::SetModelMatrix(const glm::mat4x4* model)
+{
+    auto currentFrame  = m_device.GetCurrentFrame();
+    auto commandBuffer = GetVkCommandBuffer();
+    m_descriptorSet->UpdateModelMatrix(currentFrame, model);
+    // TODO untemplate pipe for shared_ptr to current
+    switch (m_currentPipeline)
+    {
+        case TEST:
+        {
+            m_testPipeline
+                ->BindDescriptor(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentFrame);
+            break;
+        }
+
+        case TERRAIN:
+        {
+            m_terrainPipeline
+                ->BindDescriptor(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentFrame);
+            break;
+        }
+
+        case FULLSCREEN:
+        {
+            m_fullscreenPipeline
+                ->BindDescriptor(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentFrame);
+            break;
+        }
+
+        case SKY:
+        {
+            m_skyPipeline
+                ->BindDescriptor(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentFrame);
+            break;
+        }
+
+        default:
+        {
+            throw std::runtime_error("Unhandled pipe type");
+        }
+    }
 }
 
 void VulkanRenderer::WaitForIdle()

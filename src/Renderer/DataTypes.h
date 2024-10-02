@@ -47,10 +47,6 @@ struct UniformBufferObject
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
-    alignas(16) glm::mat4 mvp;
-    alignas(16) glm::mat4 invModel;
-    alignas(16) glm::mat4 invView;
-    alignas(16) glm::mat4 invProj;
     alignas(16) glm::mat4 clipToWorld;
     alignas(16) glm::vec3 eye;
 
@@ -64,16 +60,12 @@ struct UniformBufferObject
         model       = glm::identity<glm::mat4>();
         view        = cam->view;
         proj        = cam->proj;
-        mvp         = proj * view * model;
-        invModel    = glm::inverse(model);
-        invView     = glm::inverse(view);
-        invProj     = glm::inverse(proj);
         clipToWorld = glm::inverse(proj * view);
         eye         = cam->transform.position;
 
         viewport = cam->viewport;
 
-        const auto degreesPerSecond = 0.5;
+        const auto degreesPerSecond = 20.5;
         auto       sunRotation      = glm::angleAxis(
             glm::radians(degreesPerSecond * Time::Uptime()),
             glm::normalize(glm::dvec3 {1.0, 0.3, 0.2})

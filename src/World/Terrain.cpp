@@ -1,10 +1,8 @@
-#include <array>
-
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/geometric.hpp>
 
 #include "../Log.h"
 #include "../Renderer/Renderer.h"
-#include "../Renderer/Vulkan/VulkanRenderer.h"
 #include "Terrain.h"
 
 namespace drive
@@ -12,8 +10,9 @@ namespace drive
 
 Terrain::Terrain(std::shared_ptr<Renderer> renderer) :
     m_renderer(renderer),
-    m_perlinSeed(0xDEADBEEF),
-    m_perlin(m_perlinSeed)
+    m_noiseSeed(0xDEADBEEF),
+    m_terrainNoise(m_noiseSeed),
+    m_treeNoise(m_noiseSeed - 1)
 {
     LOG_DEBUG("Creating Terrain");
     m_observerPosition = {};
@@ -23,6 +22,16 @@ Terrain::Terrain(std::shared_ptr<Renderer> renderer) :
 Terrain::~Terrain()
 {
     LOG_DEBUG("Destroying Terrain");
+    /*
+    if (g_leafVertexBuffer != nullptr)
+    {
+        g_leafVertexBuffer.reset();
+    }
+    if (g_leafIndexBuffer != nullptr)
+    {
+        g_leafIndexBuffer.reset();
+    }
+    */
 }
 
 void Terrain::SetObserverPosition(glm::vec3 pos)
@@ -41,7 +50,7 @@ void Terrain::SetObserverPosition(glm::vec3 pos)
     LoadChunks();
 }
 
-void Terrain::Render()
+void Terrain::Render(std::shared_ptr<Camera> camera)
 {
     for (int x = 0; x < CHUNK_ARR_SIZE; x++)
     {
@@ -71,10 +80,22 @@ void Terrain::Render()
                     chunk->indices.clear();
                 }
 
-                if (chunk->vertexBuffer && chunk->indexBuffer)
+                if (chunk->IsInFrame(camera) && chunk->vertexBuffer && chunk->indexBuffer)
                 {
                     m_renderer->BindPipeline(RenderPipeline::TERRAIN);
                     m_renderer->DrawWithBuffers(chunk->vertexBuffer, chunk->indexBuffer);
+
+                    // TODO: instanced rendering
+                    for (const auto& tree : chunk->trees)
+                    {
+                        if (tree.IsInFrame(camera))
+                        {
+                            tree.Render();
+                        }
+                    }
+
+                    // const auto model = glm::identity<glm::mat4x4>();
+                    // m_renderer->SetModelMatrix(&model);
                 }
             }
         }
@@ -159,6 +180,12 @@ void Terrain::LoadChunks()
 }
 
 void Terrain::GenerateChunk(std::shared_ptr<Chunk> chunk)
+{
+    GenerateChunkTerrain(chunk);
+    GenerateChunkTrees(chunk);
+}
+
+void Terrain::GenerateChunkTerrain(std::shared_ptr<Chunk> chunk)
 {
     const unsigned int quadsPerSide    = (CHUNK_SIZE * TERRAIN_CHUNK_RESOLUTION);
     const unsigned int verticesPerSide = quadsPerSide + 1;
@@ -260,7 +287,7 @@ float Terrain::TerrainHeight(glm::vec2 pos)
 
 float Terrain::TerrainNoise(glm::vec2 pos, int octaves)
 {
-    return m_perlin.octave2D_01(pos.x, pos.y, octaves);
+    return m_terrainNoise.octave2D_01(pos.x, pos.y, octaves);
 }
 
 float Terrain::RoadNoise(glm::vec2 pos)
@@ -273,11 +300,42 @@ float Terrain::RoadNoise(glm::vec2 pos)
     {
         if (xDist > smoothDistance)
         {
-
             return 0;
         }
         return std::lerp(ROAD_NOISE_THRESHOLD, 0.2f, (xDist - roadHalfWidth) / smoothDistance);
     }
     return std::lerp(1.0f, ROAD_NOISE_THRESHOLD, xDist / roadHalfWidth);
+}
+
+void Terrain::GenerateChunkTrees(std::shared_ptr<Chunk> chunk)
+{
+    for (float x = 0; x * TREE_SPACING < CHUNK_SIZE; x++)
+    {
+        for (float y = 0; y * TREE_SPACING < CHUNK_SIZE; y++)
+        {
+            glm::vec2 pos = chunk->worldPosition;
+            pos.x += x;
+            pos.y += y;
+
+            glm::vec2   terrainNoisePos = pos * TERRAIN_NOISE_SCALE;
+            const float roadNoise       = RoadNoise(terrainNoisePos);
+            if (roadNoise > 0)
+            {
+                continue;
+            }
+
+            glm::vec2   treeNoisePos = pos * TREE_NOISE_SCALE;
+            const float noise        = m_treeNoise.octave2D_01(treeNoisePos.x, treeNoisePos.y, 8);
+
+            if (noise > TREE_NOISE_THRESHOLD)
+            {
+                const float height = TerrainNoise(terrainNoisePos, 4) * TERRAIN_HEIGHT;
+
+                glm::vec3 treePos = glm::vec3(pos.x, pos.y, height + 2.0f);
+                auto      tree    = Tree(m_renderer, treePos);
+                chunk->trees.push_back(tree);
+            }
+        }
+    }
 }
 }; // namespace drive

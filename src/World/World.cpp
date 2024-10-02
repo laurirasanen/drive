@@ -1,6 +1,6 @@
 #include "World.h"
 #include "../Log.h"
-#include "src/Renderer/Renderer.h"
+#include "../Renderer/Renderer.h"
 
 namespace drive
 {
@@ -77,9 +77,9 @@ void World::Tick(std::shared_ptr<Camera> camera)
     }
 }
 
-void World::Render()
+void World::Render(std::shared_ptr<Camera> camera)
 {
-    m_terrain->Render();
+    m_terrain->Render(camera);
 
     m_renderer->BindPipeline(RenderPipeline::TERRAIN);
     m_renderer->DrawWithBuffers(m_testSphereVertexBuffer, m_testSphereIndexBuffer);

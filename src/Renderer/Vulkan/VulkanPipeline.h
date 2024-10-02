@@ -31,6 +31,11 @@ class VulkanPipeline
     VulkanPipeline& operator=(VulkanPipeline&&)      = delete;
 
     void Bind(VkCommandBuffer commandBuffer, VkPipelineBindPoint bindPoint, uint32_t frameIndex);
+    void BindDescriptor(
+        VkCommandBuffer     commandBuffer,
+        VkPipelineBindPoint bindPoint,
+        uint32_t            frameIndex
+    );
 
     VkPipeline GetVkPipeline() const
     {
@@ -223,6 +228,16 @@ void VulkanPipeline<V>::Bind(
 )
 {
     vkCmdBindPipeline(commandBuffer, bindPoint, m_vkPipeline);
+    BindDescriptor(commandBuffer, bindPoint, frameIndex);
+}
+
+template<typename V>
+void VulkanPipeline<V>::BindDescriptor(
+    VkCommandBuffer     commandBuffer,
+    VkPipelineBindPoint bindPoint,
+    uint32_t            frameIndex
+)
+{
     m_descriptorSet->Bind(commandBuffer, bindPoint, m_vkPipelineLayout, frameIndex);
 }
 } // namespace drive

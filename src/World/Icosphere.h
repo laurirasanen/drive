@@ -67,7 +67,12 @@ struct Icosphere
     std::vector<glm::vec3> normals;
     std::vector<Index>     indices;
 
-    Icosphere(glm::vec3 origin, float radius, unsigned int subdivisions, bool invert = false)
+    Icosphere(
+        glm::vec3    origin       = {},
+        float        radius       = 1.0f,
+        unsigned int subdivisions = 0,
+        bool         invert       = false
+    )
     {
         // Don't be silly...
         // 10k verts should be enough for anything

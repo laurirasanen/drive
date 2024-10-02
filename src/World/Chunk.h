@@ -7,11 +7,12 @@
 
 #include "../Renderer/Buffer.h"
 #include "../Renderer/DataTypes.h"
-
-#define CHUNK_SIZE 64
+#include "Tree.h"
 
 namespace drive
 {
+#define CHUNK_SIZE 64
+
 struct Chunk
 {
     glm::ivec2 position;
@@ -23,6 +24,8 @@ struct Chunk
 
     std::shared_ptr<Buffer> vertexBuffer;
     std::shared_ptr<Buffer> indexBuffer;
+
+    std::vector<Tree> trees;
 
     Chunk(glm::ivec2 pos)
     {
@@ -39,6 +42,12 @@ struct Chunk
     static constexpr glm::ivec2 WorldToChunk(glm::vec2 pos)
     {
         return glm::ivec2(pos.x / CHUNK_SIZE, pos.y / CHUNK_SIZE);
+    }
+
+    bool IsInFrame(const std::shared_ptr<Camera> /*camera*/) const
+    {
+        // TODO check bounds in frustum
+        return true;
     }
 };
 }; // namespace drive

@@ -7,6 +7,7 @@
 
 #include "../Components/Camera.h"
 #include "../Components/Rect.h"
+#include "../Log.h"
 #include "../Window/Window.h"
 #include "Buffer.h"
 
@@ -20,6 +21,7 @@ enum RendererType
 
 enum RenderPipeline
 {
+    NONE,
     TEST,
     TERRAIN,
     FULLSCREEN,
@@ -43,14 +45,29 @@ class Renderer
     virtual void         ClearViewport()                                      = 0;
     virtual void         Resize()                                             = 0;
     virtual float        GetAspect()                                          = 0;
-    virtual void         Begin()                                              = 0;
     virtual void         Submit()                                             = 0;
     virtual void         Present()                                            = 0;
     virtual void         UpdateUniforms(const std::shared_ptr<Camera> camera) = 0;
     virtual RendererType Type() const                                         = 0;
     virtual void         WaitForIdle()                                        = 0;
     virtual void*        GetCommandBuffer()                                   = 0;
-    virtual void         BindPipeline(RenderPipeline pipe)                    = 0;
+
+    virtual void Begin()
+    {
+        m_currentPipeline = RenderPipeline::NONE;
+    };
+
+    virtual void BindPipeline(RenderPipeline pipe)
+    {
+        if (m_currentPipeline == pipe)
+        {
+            return;
+        }
+
+        m_currentPipeline = pipe;
+    }
+
+    virtual void SetModelMatrix(const glm::mat4x4* model) = 0;
 
     virtual void CreateBuffer(
         std::shared_ptr<Buffer>& buffer,
@@ -62,6 +79,12 @@ class Renderer
 
     void DrawWithBuffers(std::shared_ptr<Buffer> vertexBuffer, std::shared_ptr<Buffer> indexBuffer)
     {
+        if (m_currentPipeline == RenderPipeline::NONE)
+        {
+            LOG_ERROR("Tried to draw with no pipeline");
+            return;
+        }
+
         auto commandBuffer = GetCommandBuffer();
         if (commandBuffer != nullptr)
         {
@@ -76,5 +99,8 @@ class Renderer
     // Hold so we don't call Buffer destructor
     // while still in use by command buffer.
     std::vector<std::shared_ptr<Buffer>> m_frameBuffers;
+
+    // TODO untemplate for shared_ptr
+    RenderPipeline m_currentPipeline;
 };
 } // namespace drive
